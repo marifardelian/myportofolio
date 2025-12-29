@@ -20,6 +20,12 @@ const Work = () => {
     let padding: number =
       parseInt(window.getComputedStyle(box[0]).padding) / 2;
     translateX = rect.width * box.length - (rectLeft + parentWidth) + padding;
+    
+    // Push TechStack down by scroll distance
+    const techstack = document.querySelector(".techstack") as HTMLElement;
+    if (techstack) {
+      techstack.style.marginTop = `${translateX}px`;
+    }
   }
 
   setTranslateX();
@@ -28,7 +34,7 @@ const Work = () => {
     scrollTrigger: {
       trigger: ".work-section",
       start: "top top",
-      end: `+=${translateX}`, // Use actual scroll width
+      end: `+=${translateX}`,
       scrub: true,
       pin: true,
       id: "work",

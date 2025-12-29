@@ -130,27 +130,38 @@ const TechStack = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop;
-      const threshold = document
-        .getElementById("work")!
-        .getBoundingClientRect().top;
-      setIsActive(scrollY > threshold);
+      const techstackElement = document.querySelector(".techstack");
+      if (!techstackElement) return;
+      
+      const techstackRect = techstackElement.getBoundingClientRect();
+      setIsActive(techstackRect.top < window.innerHeight);
     };
+    
+    const clickHandlers: (() => void)[] = [];
     document.querySelectorAll(".header a").forEach((elem) => {
       const element = elem as HTMLAnchorElement;
-      element.addEventListener("click", () => {
+      const handler = () => {
         const interval = setInterval(() => {
           handleScroll();
         }, 10);
         setTimeout(() => {
           clearInterval(interval);
         }, 1000);
-      });
+      };
+      clickHandlers.push(handler);
+      element.addEventListener("click", handler);
     });
+    
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      document.querySelectorAll(".header a").forEach((elem, index) => {
+        elem.removeEventListener("click", clickHandlers[index]);
+      });
     };
   }, []);
+  
   const materials = useMemo(() => {
     return textures.map(
       (texture) =>
@@ -165,6 +176,15 @@ const TechStack = () => {
         })
     );
   }, []);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup materials on unmount
+      materials.forEach((material) => {
+        material.dispose();
+      });
+    };
+  }, [materials]);
 
   return (
     <div className="techstack">
